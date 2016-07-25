@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Atmel Studio Solution File, Format Version 11.00
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "WINC1500 Prowl Monitor on D21", "WINC1500_SIMPLE_GROWL_D21\WINC1500 Prowl Monitor on D21.cproj", "{DCE6C7E3-EE26-4D79-826B-08594B9AD897}"
+EndProject
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "WINC1500 Prowl Monitor on W25", "WINC1500 Prowl Monitor on W25\WINC1500 Prowl Monitor on W25.cproj", "{FB86F3BA-6DE6-4319-B7EA-CD02C6BD4167}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
+		Release|ARM = Release|ARM
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug|ARM.ActiveCfg = Debug|ARM
+		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug|ARM.Build.0 = Debug|ARM
+		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Release|ARM.ActiveCfg = Release|ARM
+		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Release|ARM.Build.0 = Release|ARM
+		{FB86F3BA-6DE6-4319-B7EA-CD02C6BD4167}.Debug|ARM.ActiveCfg = Debug|ARM
+		{FB86F3BA-6DE6-4319-B7EA-CD02C6BD4167}.Debug|ARM.Build.0 = Debug|ARM
+		{FB86F3BA-6DE6-4319-B7EA-CD02C6BD4167}.Release|ARM.ActiveCfg = Release|ARM
+		{FB86F3BA-6DE6-4319-B7EA-CD02C6BD4167}.Release|ARM.Build.0 = Release|ARM
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
