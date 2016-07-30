@@ -66,22 +66,7 @@
  *    Stop bit : 1bit
  *    Flow control : none
  * \endcode
- * -# Start the application.
- * -# In the terminal window, the following text should appear:
- * \code
- *    -- WINC1500 simple growl example --
- *    -- SAMD21_XPLAINED_PRO --
- *    -- Compiled: xxx xx xxxx xx:xx:xx --
- *    Provision Mode started.
- *    Connect to [atmelconfig.com] via AP[WINC1500_xx:xx] and fill up the page
- *    Wi-Fi connected
- *    Wi-Fi IP is xxx.xxx.xxx.xxx
- *    wifi_cb: M2M_WIFI_RESP_PROVISION_INFO.
- *    Wi-Fi connected
- *    Wi-Fi IP is xxx.xxx.xxx.xxx
- *    send Growl message
- *    Growl CB : 20
- * \endcode
+
  *
  * This application supports sending GROWL notifications to the following servers.
  * -# PROWL for iOS push notifications (https://www.prowlapp.com/).
@@ -117,17 +102,15 @@
 #include "Timer.h"
 #include "MyID.h"
 
-void configure_extint_channel(void);
-void configure_extint_callbacks(void);
-void extint_detection_callback(void);
-
 uint8 pin_state;
 uint32_t seconds_alive_cnt;
 uint8 service_1s_flag;
 uint8 connection_state;
 uint32 growl_msg_tmr;
 
-const char app_string[] = MY_APP_NAME;
+const char app_string[] = MY_APP_NAME; //pulled from MyID.h
+
+char event_msg_buf[GROWL_DESCRIPTION_MAX_LENGTH + MAX_TIME_STAMP_LEN];
 
 //! [setup]
 void configure_extint_channel(void)
@@ -174,17 +157,33 @@ static void configure_console(void)
 	usart_enable(&cdc_uart_module);
 }
 
-static int send_prowl(const char* event_name, const char* event_msg)
+void ConvertSeconds2Timestamp(uint32 seconds, timestamp_t* my_time)
 {
-	return growl_send_message_handler(app_string, event_name, event_msg);
+	uint32 remainder;
+	my_time->days = seconds / (60 * 60 * 24);
+	remainder = seconds % (60 * 60 * 24); //remainder of hours
+	my_time->hours = remainder / (60 * 60);
+	remainder = remainder % (60 * 60); //remainder of minutes
+	my_time->minutes = remainder / 60;
+	my_time->seconds = remainder % 60;
+}
+
+int send_prowl(const char* event_name, const char* event_msg)
+{
+	timestamp_t time_stamp;
+	ConvertSeconds2Timestamp(seconds_alive_cnt, &time_stamp);
+	sprintf(event_msg_buf, "%01ld:%02ld:%02ld:%02ld ", time_stamp.days, time_stamp.hours, time_stamp.minutes, time_stamp.seconds);
+	strcat(event_msg_buf, event_msg);
+	return growl_send_message_handler(app_string, event_name, event_msg_buf); // msg_buffer);
 }
 
 /**
  * \brief Send a specific notification to a registered Android(NMA) or IOS(PROWL)
  */
-static int growl_send_message_handler(const char* app_name, const char* event_name, const char* event_msg)
+int growl_send_message_handler(const char* app_name, const char* event_name, const char* event_msg)
 {
-	printf("Sending Prowl Event: %s \r\n", event_msg);
+	printf("Sending Prowl: %s => ", event_msg);
+	growl_msg_tmr = 59;
 	NMI_GrowlSendNotification(PROWL_CLIENT, (uint8*) app_name, (uint8*) event_name, (uint8*) event_msg,PROWL_CONNECTION_TYPE); // send by PROWL */
 	//NMI_GrowlSendNotification(NMA_CLIENT, (uint8_t *)"Growl_Sample", (uint8_t *)"Growl_Event", (uint8_t *)"growl_test", NMA_CONNECTION_TYPE);           /* send by NMA */
 	return 0;
@@ -295,18 +294,25 @@ void GrowlCb(uint8_t u8Code, uint8_t u8ClientID)
 		printf("Growl msg sent successfully.\r\n");
 	else	
 		printf("ERROR: Growl CB Code: %d \r\n", u8Code);
+	growl_msg_tmr = 0; //reset msg timer for growl response
 }
 
 void Service_1hr(void)
 {
-	if(connection_state)
-		send_prowl("Heartbeat", "1Hr Heartbeat Ping");	
+	static uint8 heartbeat_tmr;
+	if(heartbeat_tmr)
+		heartbeat_tmr--;
+	else
+	{
+		if(connection_state)
+			send_prowl("Heartbeat", "24Hr Heartbeat Ping");	
+		heartbeat_tmr = 23; //heartbeat every 24hrs
+	}	
 }
 
 void Service_1s(void)
 {
 	static uint16 hour_tmr;
-	port_pin_toggle_output_level(LED0_PIN);
 	seconds_alive_cnt++;
 	
 	if(hour_tmr)
@@ -320,7 +326,7 @@ void Service_1s(void)
 	}
 }
 
-void TimerCallback(void) //called every .5s
+void TimerCallback(void) //called every .25s
 {
 	static uint8_t second_tmr;
 	if(second_tmr)
@@ -329,12 +335,15 @@ void TimerCallback(void) //called every .5s
 	}
 	else
 	{
-		second_tmr = 1;
+		second_tmr = 3;
 		service_1s_flag = 1; //let main thread know to call Service1s()	
 	}
 	//Place any code that needs to be serviced at this interval here:
 	if(growl_msg_tmr)
+	{
 		growl_msg_tmr--;
+		putchar('.');
+	}
 }
 
 /**
@@ -364,6 +373,7 @@ int main(void)
 	configure_tc();
 	configure_tc_callbacks();
 
+	//port_pin_set_output_level(LED0_PIN, 1);
 	pin_state = port_pin_get_input_level(BUTTON_0_PIN);
 	prev_pin_state = pin_state;
 	//Configure interupt for SW0
@@ -416,14 +426,13 @@ int main(void)
 		if(pin_state != prev_pin_state && growl_msg_tmr == 0)
 		{
 			prev_pin_state = pin_state;
-			growl_msg_tmr = 2;
 			if(pin_state)
 			{
-				send_prowl("State Change", "Now Open");
+				send_prowl("State Change", "Opened");
 			}
 			else
 			{
-				send_prowl("State Change", "Now Closed");
+				send_prowl("State Change", "Closed");
 			}
 		}
 		if(service_1s_flag)

@@ -21,7 +21,7 @@ void configure_tc(void)
 	config_tc.counter_size = TC_COUNTER_SIZE_8BIT;
 	config_tc.clock_source = GCLK_GENERATOR_1;
 	config_tc.clock_prescaler = TC_CLOCK_PRESCALER_DIV256;
-	config_tc.counter_8_bit.period = 64; //This sets interrupt time - 128cnts/sec - 64=.5sec
+	config_tc.counter_8_bit.period = 32; //This sets interrupt time - 128cnts/sec - 32 =.25sec
 	config_tc.counter_8_bit.compare_capture_channel[0] = 50;
 	config_tc.counter_8_bit.compare_capture_channel[1] = 99;
 

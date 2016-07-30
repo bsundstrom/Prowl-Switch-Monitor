@@ -83,11 +83,25 @@ extern "C" {
 
 #define MAIN_HEX2ASCII(x) (((x) >= 10) ? (((x) - 10) + 'A') : ((x) + '0'))
 
+typedef struct timestamp
+{
+	uint32 days;
+	uint32 hours;
+	uint32 minutes;
+	uint32 seconds;
+} timestamp_t;
+
+#define MAX_TIME_STAMP_LEN 14
+
+void configure_extint_channel(void);
+void configure_extint_callbacks(void);
+void extint_detection_callback(void);
 void TimerCallback(void);
 void Service_1s(void);
 void Service_1hr(void);
-static int send_prowl(const char* event_name, const char* event_msg);
-static int growl_send_message_handler(const char* app_name, const char* event_name, const char* event_msg);
+int send_prowl(const char* event_name, const char* event_msg);
+int growl_send_message_handler(const char* app_name, const char* event_name, const char* event_msg);
+void ConvertSeconds2Timestamp(uint32, timestamp_t*);
 
 #ifdef ENABLE_WIFI_PROVISIONING
 static tstrM2MAPConfig gstrM2MAPConfig = {
