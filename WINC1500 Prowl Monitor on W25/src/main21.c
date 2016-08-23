@@ -183,7 +183,7 @@ int send_prowl(const char* event_name, const char* event_msg)
 int growl_send_message_handler(const char* app_name, const char* event_name, const char* event_msg)
 {
 	printf("Sending Prowl: %s => ", event_msg);
-	growl_msg_tmr = 59;
+	growl_msg_tmr = 119;
 	NMI_GrowlSendNotification(PROWL_CLIENT, (uint8*) app_name, (uint8*) event_name, (uint8*) event_msg,PROWL_CONNECTION_TYPE); // send by PROWL */
 	//NMI_GrowlSendNotification(NMA_CLIENT, (uint8_t *)"Growl_Sample", (uint8_t *)"Growl_Event", (uint8_t *)"growl_test", NMA_CONNECTION_TYPE);           /* send by NMA */
 	return 0;
@@ -293,21 +293,23 @@ void GrowlCb(uint8_t u8Code, uint8_t u8ClientID)
 	if(u8Code == 20)
 		printf("Growl msg sent successfully.\r\n");
 	else	
+	{
 		printf("ERROR: Growl CB Code: %d \r\n", u8Code);
+		system_reset();
+	}
 	growl_msg_tmr = 0; //reset msg timer for growl response
 }
 
 void Service_1hr(void)
 {
-	static uint8 heartbeat_tmr;
-	if(heartbeat_tmr)
-		heartbeat_tmr--;
-	else
+	static uint32 hour_cntr = 0;
+	if(hour_cntr == 0)
 	{
+		hour_cntr = 3; //will immediately get subtracted by one after this if statement.
 		if(connection_state)
-			send_prowl("Heartbeat", "24Hr Heartbeat Ping");	
-		heartbeat_tmr = 23; //heartbeat every 24hrs
-	}	
+			send_prowl("Heartbeat", "24Hr Heartbeat Ping");
+	}
+	hour_cntr--;
 }
 
 void Service_1s(void)
