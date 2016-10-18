@@ -71,9 +71,11 @@ extern "C" {
 #define MAIN_M2M_AP_SSID_MODE            SSID_MODE_VISIBLE
 #else
 /** Wi-Fi Settings */
-#define MAIN_WLAN_SSID        "Degobah" /* < Destination SSID */
+//#define MAIN_WLAN_SSID        "Degobah" /* < Destination SSID */
 #define MAIN_WLAN_AUTH        M2M_WIFI_SEC_WPA_PSK /* < Security manner */
-#define MAIN_WLAN_PSK         "Iamyourfather" /* < Password for Destination SSID */
+//#define MAIN_WLAN_PSK         "Iamyourfather" /* < Password for Destination SSID */
+#define MAIN_WLAN_SSID        "SadieNet" /* < Destination SSID */
+#define MAIN_WLAN_PSK         "12345678"
 #endif
 
 #define MAIN_HTTP_PROV_SERVER_DOMAIN_NAME    "atmelconfig.com"

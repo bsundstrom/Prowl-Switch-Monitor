@@ -305,9 +305,9 @@ void Service_1hr(void)
 	static uint32 hour_cntr = 0;
 	if(hour_cntr == 0)
 	{
-		hour_cntr = 3; //will immediately get subtracted by one after this if statement.
+		hour_cntr = HEARTBEAT_INTERVAL_HRS - 1; //will immediately get subtracted by one after this if statement.
 		if(connection_state)
-			send_prowl("Heartbeat", "24Hr Heartbeat Ping");
+			send_prowl("Heartbeat", "Heartbeat Ping");
 	}
 	hour_cntr--;
 }

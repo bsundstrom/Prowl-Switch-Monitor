@@ -107,6 +107,8 @@ uint32_t seconds_alive_cnt;
 uint8 service_1s_flag;
 uint8 connection_state;
 uint32 growl_msg_tmr;
+uint32 reconnect_tmr;
+uint32 reconnect_cnt;
 
 const char app_string[] = MY_APP_NAME; //pulled from MyID.h
 
@@ -225,7 +227,8 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
 			printf("Wi-Fi connected\r\n");
 			m2m_wifi_request_dhcp_client();
 		} else if (pstrWifiState->u8CurrState == M2M_WIFI_DISCONNECTED) {
-			printf("Wi-Fi disconnected\r\n");
+			printf("Wi-Fi disconnected - Will try to reconnect in 30 seconds...\r\n");
+			reconnect_tmr = 30;
 			connection_state = 0;
 		}
 		break;
@@ -244,7 +247,12 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
 		}
 #else
 		NMI_GrowlInit((uint8_t *)PROWL_API_KEY, (uint8_t *)NMA_API_KEY);
-		send_prowl("Status Update", "Connection Established");
+		if(reconnect_cnt)
+		{
+			send_prowl("Status Update", "Connection Re-established.");
+		}
+		else
+			send_prowl("Status Update", "Connection Established");
 #endif
 		connection_state = 1;
 		break;
@@ -316,6 +324,17 @@ void Service_1s(void)
 {
 	static uint16 hour_tmr;
 	seconds_alive_cnt++;
+	
+	if(reconnect_tmr > 0)
+	{
+		reconnect_tmr--;
+		if(reconnect_tmr == 0)
+		{
+			reconnect_cnt++;
+			printf("Trying to re-connect.\r\n");
+			m2m_wifi_connect((char *)MAIN_WLAN_SSID, sizeof(MAIN_WLAN_SSID), MAIN_WLAN_AUTH, (char *)MAIN_WLAN_PSK, M2M_WIFI_CH_ALL);
+		}
+	}
 	
 	if(hour_tmr)
 	{
