@@ -105,7 +105,7 @@
 uint8 pin_state;
 uint32_t seconds_alive_cnt;
 uint8 service_1s_flag;
-uint8 connection_state;
+connection_states connection_state;
 uint32 growl_msg_tmr;
 uint32 reconnect_tmr;
 uint32 reconnect_cnt;
@@ -229,7 +229,7 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
 		} else if (pstrWifiState->u8CurrState == M2M_WIFI_DISCONNECTED) {
 			printf("Wi-Fi disconnected - Will try to reconnect in 30 seconds...\r\n");
 			reconnect_tmr = 30;
-			connection_state = 0;
+			connection_state = WIFI_NOT_CONNECTED;
 		}
 		break;
 	}
@@ -254,7 +254,7 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
 		else
 			send_prowl("Status Update", "Connection Established");
 #endif
-		connection_state = 1;
+		connection_state = WIFI_CONNECTED;
 		break;
 	}
 
@@ -313,9 +313,11 @@ void Service_1hr(void)
 	static uint32 hour_cntr = 0;
 	if(hour_cntr == 0)
 	{
-		hour_cntr = 3; //will immediately get subtracted by one after this if statement.
-		if(connection_state)
+		hour_cntr = 23;
+#ifdef HEARTBEAT_ENABLED
+		if(connection_state == WIFI_CONNECTED)
 			send_prowl("Heartbeat", "24Hr Heartbeat Ping");
+#endif
 	}
 	hour_cntr--;
 }

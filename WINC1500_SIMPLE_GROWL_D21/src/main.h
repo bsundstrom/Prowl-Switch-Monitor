@@ -51,7 +51,7 @@ extern "C" {
 "Compiled: "__DATE__ " "__TIME__ " --\r\n"
 
 #define PROWLER_STR \
-" _____ _            ____                    _\r\n" \
+"\r\n _____ _            ____                    _\r\n" \
 "|_   _| |__   ___  |  _ \\ _ __ _____      _| | ___ _ __\r\n" \
 "  | | | '_ \\ / _ \\ | |_) | '__/ _ \\ \\ /\\ / / |/ _ \\ '__|\r\n" \
 "  | | | | | |  __/ |  __/| | | (_) \\ V  V /| |  __/ |\r\n" \
@@ -65,17 +65,17 @@ extern "C" {
 #define PROWL_CONNECTION_TYPE    NORMAL_CONNECTION
 #define NMA_CONNECTION_TYPE      SSL_CONNECTION
 
-#define HEARTBEAT_INTERVAL_HRS 5
-
 #ifdef ENABLE_WIFI_PROVISIONING
 #define MAIN_M2M_AP_SEC                  M2M_WIFI_SEC_OPEN
 #define MAIN_M2M_AP_WEP_KEY              "1234567890"
 #define MAIN_M2M_AP_SSID_MODE            SSID_MODE_VISIBLE
 #else
 /** Wi-Fi Settings */
-#define MAIN_WLAN_SSID        "Degobah" /* < Destination SSID */
+//#define MAIN_WLAN_SSID        "Degobah" /* < Destination SSID */
 #define MAIN_WLAN_AUTH        M2M_WIFI_SEC_WPA_PSK /* < Security manner */
-#define MAIN_WLAN_PSK         "Iamyourfather" /* < Password for Destination SSID */
+//#define MAIN_WLAN_PSK         "Iamyourfather" /* < Password for Destination SSID */
+#define MAIN_WLAN_SSID        "SadieNet" /* < Destination SSID */
+#define MAIN_WLAN_PSK         "12345678"
 #endif
 
 #define MAIN_HTTP_PROV_SERVER_DOMAIN_NAME    "atmelconfig.com"
@@ -84,6 +84,12 @@ extern "C" {
 #define MAIN_MAC_ADDRESS                     {0xf8, 0xf0, 0x05, 0x45, 0xD4, 0x84}
 
 #define MAIN_HEX2ASCII(x) (((x) >= 10) ? (((x) - 10) + 'A') : ((x) + '0'))
+
+typedef enum connecton_states_enum
+{
+	WIFI_NOT_CONNECTED,
+	WIFI_CONNECTED
+} connection_states;
 
 typedef struct timestamp
 {

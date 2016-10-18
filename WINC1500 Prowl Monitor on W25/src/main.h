@@ -85,6 +85,12 @@ extern "C" {
 
 #define MAIN_HEX2ASCII(x) (((x) >= 10) ? (((x) - 10) + 'A') : ((x) + '0'))
 
+typedef enum connecton_states_enum
+{
+	WIFI_NOT_CONNECTED,
+	WIFI_CONNECTED
+} connection_states;
+
 typedef struct timestamp
 {
 	uint32 days;
